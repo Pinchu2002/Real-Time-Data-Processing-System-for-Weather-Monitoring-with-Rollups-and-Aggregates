@@ -3,8 +3,31 @@
 
 This project is a web-based weather application that retrieves and displays current weather data and forecasts for selected cities. The application is built using Flask and integrates with the OpenWeatherMap API to fetch weather data. It includes functionalities such as displaying current weather, forecast data, and alerting based on specific weather conditions.
 
-## Project Structure
-tree -I '__pycache__' -L 2
+# WeatherApplication
+
+## Directory Structure
+
+To view the directory structure of this project, you can use the `tree` command. Follow these steps:
+
+1. **Install `tree`** (if not already installed):
+   - On **Debian-based systems (e.g., Ubuntu)**:
+     ```bash
+     sudo apt-get install tree
+     ```
+   - On **Red Hat-based systems (e.g., Fedora)**:
+     ```bash
+     sudo yum install tree
+     ```
+   - On **macOS**:
+     ```bash
+     brew install tree
+     ```
+
+2. **Generate the Directory Structure**:
+   Navigate to the root directory of your project in the terminal and run:
+   ```bash
+   tree -I '__pycache__' -L 2
+
 
 ## Getting Started
 
