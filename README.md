@@ -42,42 +42,43 @@ WeatherApplication/
 ### Installing Dependencies
 
 Install the required Python packages using pip:
-- pip install -r requirements.txt
+    pip install -r requirements.txt
  
 ## Configuration
 
 Set the necessary configuration values in app/config.py or using environment variables:
 
-    SQLALCHEMY_DATABASE_URI: Database connection string (default: SQLite)
-    OPENWEATHERMAP_API_KEY: API key for OpenWeatherMap (store in apikey.txt)
-    WEATHER_UPDATE_INTERVAL: Interval for weather data updates (in seconds)
-    ALERT_THRESHOLD_TEMP: Temperature threshold for alerts (in Celsius)
-    ALERT_CONSECUTIVE_COUNT: Number of consecutive updates for triggering alerts
+- SQLALCHEMY_DATABASE_URI: Database connection string (default: SQLite)
+- OPENWEATHERMAP_API_KEY: API key for OpenWeatherMap (store in apikey.txt)
+- WEATHER_UPDATE_INTERVAL: Interval for weather data updates (in seconds)
+- ALERT_THRESHOLD_TEMP: Temperature threshold for alerts (in Celsius)
+- ALERT_CONSECUTIVE_COUNT: Number of consecutive updates for triggering alerts
 
 ## Running the Application
 
 To run the application locally:
-- python run.py
+    python run.py
+
 The application will be accessible at http://127.0.0.1:5000/.
 
 ## Running with Docker
 
 To build and run the application using Docker, use the following commands:
-- docker-compose build
-- docker-compose up
+    docker-compose build
+    docker-compose up
 
 This will start the application and PostgreSQL database in separate containers. Access the application at http://127.0.0.1:5000/.
 
 ## Testing
 
 Unit tests are located in the tests/ directory. To run the tests:
-- python -m unittest discover -s tests
+    python -m unittest discover -s tests
 
 ## Usage
 
-    Home Page: Enter the city name and select the temperature unit (Celsius, Fahrenheit, Kelvin) to get the current weather and forecast.
-    Weather Data: The app fetches and displays current temperature, weather description, humidity, and wind speed.
-    Forecast Data: Displays a forecast summary for the next few intervals (e.g., 3-hour intervals).
+- Home Page: Enter the city name and select the temperature unit (Celsius, Fahrenheit, Kelvin) to get the current weather and forecast.
+- Weather Data: The app fetches and displays current temperature, weather description, humidity, and wind speed.
+- Forecast Data: Displays a forecast summary for the next few intervals (e.g., 3-hour intervals).
 
 ## Files and Modules
 - app/__init__.py: Initializes the Flask app and database.
