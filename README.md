@@ -4,9 +4,8 @@
 This project is a web-based weather application that retrieves and displays current weather data and forecasts for selected cities. The application is built using Flask and integrates with the OpenWeatherMap API to fetch weather data. It includes functionalities such as displaying current weather, forecast data, and alerting based on specific weather conditions.
 
 ## Project Structure
-```bash
-    tree -I '__pycache__' -L 2
-```
+tree -I '__pycache__' -L 2
+
 ## Getting Started
 
 ### Prerequisites
