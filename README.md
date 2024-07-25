@@ -4,7 +4,7 @@ This project is a web-based weather application that retrieves and displays curr
 
 ## Real-Time-Data-Processing-System-for-Weather-Monitoring-with-Rollups-and-Aggregates
 ```bash
-R
+Real-Time-Data-Processing-System-for-Weather-Monitoring-with-Rollups-and-Aggregates
 ├── app
 │   ├── __init__.py
 │   ├── alerting.py
