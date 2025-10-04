@@ -1,9 +1,59 @@
-# Real-Time-Data-Processing-System-for-Weather-Monitoring-with-Rollups-and-Aggregates
+# Real-Time Weather Monitoring System
 
-This project is a web-based weather application that retrieves and displays current weather data and forecasts for selected cities. The application is built using Flask and integrates with the OpenWeatherMap API to fetch weather data. It includes functionalities such as displaying current weather, forecast data, and alerting based on specific weather conditions.
+This project is a web-based weather application that retrieves and displays real-time weather data and forecasts for cities around the world. It is built with Flask and leverages the OpenWeatherMap API for data retrieval. The application features a clean, responsive user interface for displaying current weather, 5-day forecasts, and insightful visualizations. It also includes a backend alerting system for monitoring weather conditions.
 
-## Real-Time-Data-Processing-System-for-Weather-Monitoring-with-Rollups-and-Aggregates
-```bash
+## Features
+
+- **Real-Time Weather Data:** Get current weather information for any city, including temperature, humidity, and wind speed.
+- **5-Day Forecast:** View a 5-day weather forecast with 3-hour intervals.
+- **Unit Conversion:** Switch between Celsius, Fahrenheit, and Kelvin.
+- **Weather Visualizations:**
+    - **Weekly Summary:** A summary of the last 7 days of weather data.
+    - **Forecast Plot:** A visual representation of the 5-day forecast.
+    - **Temperature Heatmap:** An hourly temperature heatmap for the last 7 days.
+- **Expandable Graphs:** Click on any graph to view a larger, more detailed version.
+- **Alerting System:** A backend system to check for and log weather alerts based on configurable thresholds.
+- **Responsive UI:** A clean and modern user interface that works on both desktop and mobile devices.
+- **Error Handling:** User-friendly error handling for invalid or unknown city names.
+
+## Technology Stack
+
+- **Backend:**
+    - Python
+    - Flask
+    - SQLAlchemy (for database interaction)
+    - Alembic (for database migrations)
+- **Frontend:**
+    - HTML
+    - CSS
+    - JavaScript
+- **Database:**
+    - SQLite (default)
+- **APIs:**
+    - OpenWeatherMap API
+- **Deployment:**
+    - Docker, Docker Compose (optional)
+
+## Architecture Overview
+
+The application follows a standard Flask web application structure:
+
+- **`run.py`:** The main entry point of the application.
+- **`app/`:** The main application package.
+    - **`__init__.py`:** Initializes the Flask app, extensions, and database.
+    - **`routes.py` (implicitly in `run.py`):** Defines the application's routes and view functions.
+    - **`models.py`:** Defines the database schema using SQLAlchemy.
+    - **`data_retrieval.py`:** Handles communication with the OpenWeatherMap API.
+    - **`data_processing.py`:** Performs data aggregation and processing.
+    - **`visualizations.py`:** Generates plots and graphs.
+    - **`alerting.py`:** Contains the logic for the weather alerting system.
+    - **`config.py`:** Manages application configuration.
+- **`templates/`:** Contains the HTML templates for the frontend.
+- **`static/`:** Contains static assets like CSS, JavaScript, and images.
+
+## File Structure
+
+```
 Real-Time-Data-Processing-System-for-Weather-Monitoring-with-Rollups-and-Aggregates
 ├── app
 │   ├── __init__.py
@@ -13,85 +63,125 @@ Real-Time-Data-Processing-System-for-Weather-Monitoring-with-Rollups-and-Aggrega
 │   ├── data_retrieval.py
 │   ├── models.py
 │   ├── visualizations.py
-│   ├── static
-│   │   └── styles.css
-│   ├── templates
-│   │   └── index.html
-│   └── tests
-│       ├── __init__.py
-│       └── test_data_retrieval.py
 ├── apikey.txt
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
-└── run.py
+├── run.py
+├── static
+│   └── styles.css
+├── templates
+│   └── index.html
+└── tests
+    └── test_data_retrieval.py
 ```
-## Getting Started
+
+## Setup and Installation
 
 ### Prerequisites
 
 - Python 3.8 or higher
-- Docker (optional, for containerized deployment)
-- OpenWeatherMap API key (save in `apikey.txt`)
+- pip
+- An OpenWeatherMap API key
 
-### Installing Dependencies
+### Installation Steps
 
-Install the required Python packages using pip:
-```bash
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/Real-Time-Data-Processing-System-for-Weather-Monitoring-with-Rollups-and-Aggregates.git
+    cd Real-Time-Data-Processing-System-for-Weather-Monitoring-with-Rollups-and-Aggregates
+    ```
+
+2.  **Create a virtual environment:**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+    ```
+
+3.  **Install dependencies:**
+    ```bash
     pip install -r requirements.txt
-```
+    ```
+
+4.  **Set up the API key:**
+    Create a file named `apikey.txt` in the root directory of the project and paste your OpenWeatherMap API key into it.
+
+5.  **Run the application:**
+    ```bash
+    python run.py
+    ```
+    The application will be available at `http://127.0.0.1:5000`.
+
+## How It Works
+
+### Data Retrieval
+
+- The `WeatherRetriever` class in `app/data_retrieval.py` is responsible for fetching data from the OpenWeatherMap API.
+- It has methods for getting both current weather (`get_weather_data`) and forecast data (`get_weather_forecast`).
+- API responses are handled with error checking, including for unknown cities (404 errors).
+
+### Data Processing and Storage
+
+- Fetched weather data is processed in the `/weather` route in `run.py`.
+- The `save_weather_data` method in `WeatherRetriever` saves the data to the SQLite database.
+- The `WeatherData` model in `app/models.py` defines the structure of the `weather_data` table.
+- The `data_processing.py` file contains functions for aggregating data for visualizations, such as `daily_weather_summary` and `get_hourly_data`.
+
+### Visualizations
+
+- The `app/visualizations.py` module uses Matplotlib and Seaborn to generate plots.
+- `plot_weather_summary`: Creates a 7-day summary plot.
+- `plot_forecast`: Creates a 5-day forecast plot.
+- `plot_heatmap`: Creates an hourly temperature heatmap for the last 7 days.
+- The generated plots are saved as images in the `static/plots` directory.
+
+### Alerting
+
+- The `check_alerts` function in `app/alerting.py` checks for weather conditions that exceed a configured threshold for a consecutive number of readings.
+- The `send_alert_notification` function is a placeholder for sending notifications (e.g., email, SMS).
+
+### Frontend
+
+- The frontend is a single-page application powered by vanilla JavaScript.
+- When the user enters a city and clicks "Search", a POST request is made to the `/weather` endpoint.
+- The JSON response is then used to dynamically update the UI with the weather data and visualization paths.
+- The expandable graph feature is implemented using a modal window.
+
+## API Endpoints
+
+- **`POST /weather`**
+    - **Description:** Fetches weather data for a given city.
+    - **Request Body:**
+        - `city` (string, required): The name of the city.
+        - `unit` (string, required): The unit for temperature (`Celsius`, `Fahrenheit`, or `Kelvin`).
+    - **Success Response (200):**
+        - A JSON object containing current weather, forecast data, and paths to visualizations.
+    - **Error Responses:**
+        - `400 Bad Request`: If `city` or `unit` is missing.
+        - `404 Not Found`: If the city is not found.
+        - `500 Internal Server Error`: For other server-side errors.
+
 ## Configuration
 
-Set the necessary configuration values in app/config.py or using environment variables:
+The application can be configured via `app/config.py` or by setting environment variables.
 
-- SQLALCHEMY_DATABASE_URI: Database connection string (default: SQLite)
-- OPENWEATHERMAP_API_KEY: API key for OpenWeatherMap (store in apikey.txt)
-- WEATHER_UPDATE_INTERVAL: Interval for weather data updates (in seconds)
-- ALERT_THRESHOLD_TEMP: Temperature threshold for alerts (in Celsius)
-- ALERT_CONSECUTIVE_COUNT: Number of consecutive updates for triggering alerts
+- `SQLALCHEMY_DATABASE_URI`: The database connection string.
+- `OPENWEATHERMAP_API_KEY`: Your OpenWeatherMap API key.
+- `ALERT_THRESHOLD_TEMP`: The temperature threshold for alerts (in Celsius).
+- `ALERT_CONSECUTIVE_COUNT`: The number of consecutive readings required to trigger an alert.
 
-## Running the Application
+## Running Tests
 
-To run the application locally:
+To run the included tests, use the following command:
+
 ```bash
-    python run.py
+python -m unittest discover -s tests
 ```
 
-The application will be accessible at http://127.0.0.1:5000/.
+## Future Enhancements
 
-## Running with Docker
-
-To build and run the application using Docker, use the following commands:
-```bash
-    docker-compose build
-    docker-compose up
-```
-This will start the application and PostgreSQL database in separate containers. Access the application at http://127.0.0.1:5000/.
-
-## Testing
-
-Unit tests are located in the tests/ directory. To run the tests:
-```bash
-    python -m unittest discover -s tests
-```
-## Usage
-
-- Home Page: Enter the city name and select the temperature unit (Celsius, Fahrenheit, Kelvin) to get the current weather and forecast.
-- Weather Data: The app fetches and displays current temperature, weather description, humidity, and wind speed.
-- Forecast Data: Displays a forecast summary for the next few intervals (e.g., 3-hour intervals).
-
-## Files and Modules
-- app/__init__.py: Initializes the Flask app and database.
-- app/alerting.py: Contains logic for generating alerts based on weather conditions.
-- app/config.py: Configuration settings, including API keys and thresholds.
-- app/data_processing.py: Processes and summarizes weather data.
-- app/data_retrieval.py: Handles retrieval of weather data from the OpenWeatherMap API.
-- app/models.py: Database models for storing weather data.
-- app/visualizations.py: (Optional) Module for visualizing weather data.
-- static/styles.css: CSS styles for the application.
-- templates/index.html: HTML template for the main page.
-- tests/test_data_retrieval.py: Unit tests for data retrieval and processing.
-
-## Acknowledgements
-- OpenWeatherMap for providing the weather data API.
-- Flask, SQLAlchemy, and other open-source projects used in this application.
+- **Implement `send_alert_notification`:** Integrate a real notification service (e.g., SendGrid for email, Twilio for SMS).
+- **More Visualizations:** Add more types of graphs, such as wind direction plots or precipitation charts.
+- **User Accounts:** Allow users to create accounts to save their favorite cities.
+- **Geolocation:** Automatically detect the user's location to show local weather.
+- **Database Choice:** Add support for other databases like PostgreSQL or MySQL for production environments.

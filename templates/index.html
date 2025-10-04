@@ -3,72 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather App</title>
+    <title>Weather Monitoring Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script>
         async function getWeather() {
-            const city = document.getElementById('city').value;
+            const city = document.getElementById('city').value.trim();
             const unit = document.getElementById('unit').value;
+            
             if (!city) {
-                alert('Please enter a city');
+                showError('Please enter a city');
                 return;
             }
 
-            document.getElementById('result').innerHTML = '<div class="spinner"></div>';
+            // Show loading state
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="loading-container">
+                    <div class="spinner"></div>
+                    <p>Fetching weather data for ${city}...</p>
+                </div>`;
 
-            const response = await fetch('/weather', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ city, unit })
-            });
-            
-            const data = await response.json();
-            if (response.ok) {
-                let forecastHTML = '';
-                data.forecast.forEach(entry => {
-                    forecastHTML += `
-                        <div class="forecast-entry">
-                            <h3>${entry.date}</h3>
-                            <p>Temperature: ${entry.temperature} ${data.unit}</p>
-                            <p>Description: ${entry.description}</p>
-                        </div>
-                    `;
+            try {
+                const response = await fetch('/weather', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ city, unit })
                 });
-
-                document.getElementById('result').innerHTML = `
-                    <div class="weather-summary">
-                        <h2>Weather in ${data.city}</h2>
-                        <p>Current Temperature: ${data.current.temperature} ${data.unit}</p>
-                        <p>Description: ${data.current.description}</p>
-                        <p>Humidity: ${data.current.humidity} %</p>
-                        <p>Wind Speed: ${data.current.wind_speed} m/s</p>
-                    </div>
-                    <h2>Forecast</h2>
-                    ${forecastHTML}
-                `;
-            } else {
-                document.getElementById('result').innerHTML = `<p class="error">${data.error}</p>`;
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateWeatherUI(data);
+                } else {
+                    throw new Error(data.error || 'Failed to fetch weather data');
+                }
+            } catch (error) {
+                showError(error.message || 'An error occurred. Please try again.');
             }
         }
+
+        function updateWeatherUI(data) {
+            const resultDiv = document.getElementById('result');
+            
+            // Current weather card
+            const currentWeatherHTML = `
+                <div class="weather-card current-weather">
+                    <div class="weather-header">
+                        <h2><i class="fas fa-map-marker-alt"></i> ${data.city}</h2>
+                        <div class="current-temp">${Math.round(data.current.temperature)}<span class="unit">${data.unit}</span></div>
+                        <div class="weather-desc">${data.current.description}</div>
+                    </div>
+                    <div class="weather-details">
+                        <div class="detail">
+                            <i class="fas fa-tint"></i>
+                            <span>${data.current.humidity}%</span>
+                            <small>Humidity</small>
+                        </div>
+                        <div class="detail">
+                            <i class="fas fa-wind"></i>
+                            <span>${data.current.wind_speed} m/s</span>
+                            <small>Wind</small>
+                        </div>
+                    </div>
+                </div>`;
+
+            // Forecast cards
+            let forecastHTML = '<h3 class="section-title">5-Day Forecast</h3><div class="forecast-container">';
+            data.forecast.forEach((entry, index) => {
+                const date = new Date(entry.date);
+                const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+                const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                
+                forecastHTML += `
+                    <div class="forecast-card">
+                        <div class="forecast-day">${index === 0 ? 'Today' : day}</div>
+                        <div class="forecast-time">${time}</div>
+                        <div class="forecast-temp">${Math.round(entry.temperature)}${data.unit}</div>
+                        <div class="forecast-desc">${entry.description}</div>
+                    </div>`;
+            });
+            forecastHTML += '</div>';
+
+            // Visualizations section
+            let visualizationsHTML = '';
+            if (data.visualizations) {
+                visualizationsHTML = `
+                <div class="visualizations">
+                    <h3 class="section-title">Weather Insights</h3>
+                    <div class="visualization-grid">
+                        ${data.visualizations.summary ? `
+                        <div class="viz-card">
+                            <h4><i class="fas fa-chart-line"></i> Weekly Summary</h4>
+                            <img src="${data.visualizations.summary}" alt="Weather Summary" onload="this.style.opacity=1">
+                        </div>` : ''}
+                        ${data.visualizations.forecast ? `
+                        <div class="viz-card">
+                            <h4><i class="fas fa-cloud-sun"></i> Forecast</h4>
+                            <img src="${data.visualizations.forecast}" alt="Weather Forecast" onload="this.style.opacity=1">
+                        </div>` : ''}
+                        ${data.visualizations.heatmap ? `
+                        <div class="viz-card">
+                            <h4><i class="fas fa-thermometer-half"></i> Temperature Patterns</h4>
+                            <img src="${data.visualizations.heatmap}" alt="Temperature Heatmap" onload="this.style.opacity=1">
+                        </div>` : ''}
+                    </div>
+                </div>`;
+            }
+
+            resultDiv.innerHTML = `
+                <div class="weather-container">
+                    ${currentWeatherHTML}
+                    ${forecastHTML}
+                    ${visualizationsHTML}
+                </div>`;
+
+            // Add click listeners to the visualization images
+            const vizImages = resultDiv.querySelectorAll('.viz-card img');
+            vizImages.forEach(img => {
+                img.onclick = function(){
+                    modal.style.display = "block";
+                    modalImg.src = this.src;
+                    captionText.innerHTML = this.alt;
+                }
+            });
+        }
+
+        function showError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>${message}</p>
+                </div>`;
+        }
+
+        // Initialize with a default city if needed
+        var modal, modalImg, captionText, span;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal functionality
+            modal = document.getElementById('myModal');
+            modalImg = document.getElementById("img01");
+            captionText = document.getElementById("caption");
+            span = document.getElementsByClassName("close")[0];
+
+            if (span) {
+                span.onclick = function() { 
+                    modal.style.display = "none";
+                }
+            }
+        });
     </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Weather App</h1>
-        <form onsubmit="event.preventDefault(); getWeather();">
-            <label for="city">Enter city:</label>
-            <input type="text" id="city" name="city" required>
-            <div class="inline">
-                <label for="unit">Select unit:</label>
-                <select id="unit" name="unit" required>
-                    <option value="Celsius">Celsius</option>
-                    <option value="Fahrenheit">Fahrenheit</option>
-                    <option value="Kelvin">Kelvin</option>
-                </select>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="container">
+                <h1><i class="fas fa-cloud-sun"></i> Weather Dashboard</h1>
+                <p>Real-time weather monitoring with detailed forecasts</p>
             </div>
-            <button type="submit">Get Weather</button>
-        </form>
-        <div id="result"></div>
+        </header>
+
+        <main class="container">
+            <div class="search-container">
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="city" 
+                        placeholder="Enter city name..." 
+                        autocomplete="off"
+                        onkeypress="if(event.key === 'Enter') getWeather()"
+                    >
+                    <div class="unit-selector">
+                        <select id="unit" name="unit">
+                            <option value="Celsius">°C</option>
+                            <option value="Fahrenheit">°F</option>
+                            <option value="Kelvin">K</option>
+                        </select>
+                    </div>
+                    <button type="button" onclick="getWeather()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </div>
+
+            <div id="result">
+                <div class="welcome-message">
+                    <i class="fas fa-cloud-sun fa-4x"></i>
+                    <h2>Welcome to Weather Dashboard</h2>
+                    <p>Enter a city name to get started</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="container">
+                <p> 2025 Weather Dashboard | Real-Time Weather Monitoring</p>
+            </div>
+        </footer>
     </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="img01">
+        <div id="caption"></div>
+    </div>
+
 </body>
 </html>
